@@ -145,6 +145,10 @@ function initData() {
   }
 }
 
+function saveToStorage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(applications));
+}
+
 // --- Event Listeners Setup ---
 function setupEventListeners() {
   // Modal triggers
