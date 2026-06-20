@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CareerPath is a modern, professional Job Application Tracker. Track your job search, manage interview schedules, log salary details, contacts, and notes in one elegant dashboard.">
+  
+  <title>CareerPath | Job Application Tracker</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="app-logo">
+        <div class="logo-icon">
+          <i class="fa-solid fa-briefcase"></i>
+        </div>
+        <div class="logo-text">
+          <h1>CareerPath</h1>
+          <span>Job Search Hub</span>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btn-add-job-header">
+        <i class="fa-solid fa-plus"></i> Add Application
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-container">
+    
+    <!-- Dashboard Section -->
+    <section class="dashboard-section" aria-labelledby="dashboard-title">
+      <h2 class="sr-only" id="dashboard-title">Search Dashboard</h2>
+      
+      <!-- Stat Cards Grid -->
+      <div class="stats-grid">
+        <div class="stat-card stat-total">
+          <div class="stat-icon-wrapper">
+            <i class="fa-solid fa-folder-open"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Total Applications</span>
+            <h3 class="stat-number" id="stat-count-total">0</h3>
+          </div>
+          <div class="stat-progress-bar">
+            <div class="progress-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+        
+        <div class="stat-card stat-interviews">
+          <div class="stat-icon-wrapper">
+            <i class="fa-solid fa-calendar-days"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Interviews</span>
+            <h3 class="stat-number" id="stat-count-interviews">0</h3>
+          </div>
+          <div class="stat-progress-bar">
+            <div class="progress-fill" id="stat-progress-interviews" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="stat-card stat-offers">
+          <div class="stat-icon-wrapper">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Offers Received</span>
+            <h3 class="stat-number" id="stat-count-offers">0</h3>
+          </div>
+          <div class="stat-progress-bar">
+            <div class="progress-fill" id="stat-progress-offers" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="stat-card stat-rejected">
+          <div class="stat-icon-wrapper">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </div>
+          <div class="stat-details">
+            <span class="stat-label">Rejections</span>
+            <h3 class="stat-number" id="stat-count-rejected">0</h3>
+          </div>
+          <div class="stat-progress-bar">
+            <div class="progress-fill" id="stat-progress-rejected" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Visual Card -->
+      <div class="analytics-card">
+        <div class="analytics-header">
+          <h3><i class="fa-solid fa-chart-pie"></i> Application Status Distribution</h3>
+        </div>
+        <div class="chart-container">
+          <canvas id="status-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toolbar: Search, Filters & Sorting -->
+    <section class="toolbar-section" aria-label="Filters and search options">
+      <div class="toolbar-container">
+        
+        <!-- Search bar -->
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="search-input" placeholder="Search by company or job title..." aria-label="Search applications">
+        </div>
+        
+        <!-- Filters group -->
+        <div class="filters-group">
+          
+          <div class="filter-control">
+            <label for="filter-status" class="sr-only">Filter by Status</label>
+            <select id="filter-status">
+              <option value="all">All Statuses</option>
+              <option value="Applied">Applied</option>
+              <option value="Interview Scheduled">Interview Scheduled</option>
+              <option value="Offer Received">Offer Received</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+
+          <div class="filter-control">
+            <label for="filter-location" class="sr-only">Filter by Location</label>
+            <select id="filter-location">
+              <option value="all">All Locations</option>
+              <!-- Locations populated dynamically -->
+            </select>
+          </div>
+
+          <div class="filter-control">
+            <label for="sort-by" class="sr-only">Sort by</label>
+            <select id="sort-by">
+              <option value="date-desc">Newest Applied</option>
+              <option value="date-asc">Oldest Applied</option>
+              <option value="salary-desc">Highest Salary</option>
+              <option value="company-asc">Company (A-Z)</option>
+              <option value="jobtitle-asc">Job Title (A-Z)</option>
+            </select>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- Job Cards Grid -->
+    <section class="jobs-section" aria-label="Job applications list">
+      <div class="grid-header">
+        <h2 id="applications-count-heading">Applications (0)</h2>
+      </div>
+      
+      <!-- Card Grid -->
+      <div class="jobs-grid" id="jobs-grid-container">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+      
+      <!-- Empty State View -->
+      <div class="empty-state-view" id="empty-state">
+        <div class="empty-state-icon">
+          <i class="fa-solid fa-briefcase"></i>
+        </div>
+        <h3>No Job Applications Found</h3>
+        <p>Try clearing your filters or add a new job application to start tracking your search!</p>
+        <div class="empty-state-actions">
+          <button class="btn btn-secondary" id="btn-clear-filters">Clear Filters</button>
+          <button class="btn btn-primary" id="btn-add-job-empty">
+            <i class="fa-solid fa-plus"></i> Add Your First Job
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add/Edit Application Modal -->
+  <div class="modal-overlay" id="job-modal">
+    <div class="modal-window">
+      
+      <div class="modal-header">
+        <h2 id="modal-title">Add Job Application</h2>
+        <button class="btn-close-modal" id="btn-close-modal" aria-label="Close modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      
+      <form id="job-form" novalidate>
+        <div class="modal-body">
+          <div class="form-grid">
+            
+            <!-- Company Name -->
+            <div class="form-group col-span-2">
+              <label for="form-company">Company Name <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-building"></i>
+                <input type="text" id="form-company" required placeholder="e.g. Google, Stripe">
+              </div>
+              <span class="error-message" id="error-company">Company name is required.</span>
+            </div>
+
+            <!-- Job Title -->
+            <div class="form-group col-span-2">
+              <label for="form-job-title">Job Title <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-user-tie"></i>
+                <input type="text" id="form-job-title" required placeholder="e.g. Senior Frontend Developer">
+              </div>
+              <span class="error-message" id="error-job-title">Job title is required.</span>
+            </div>
+
+            <!-- Location -->
+            <div class="form-group">
+              <label for="form-location">Location</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-map-pin"></i>
+                <input type="text" id="form-location" placeholder="e.g. Remote, San Francisco, CA">
+              </div>
+            </div>
+
+            <!-- Salary -->
+            <div class="form-group">
+              <label for="form-salary">Salary Range (Annual)</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-indian-rupee-sign"></i>
+                <input type="text" id="form-salary" placeholder="e.g. ₹8,00,000 - ₹12,00,000">
+              </div>
+            </div>
+
+            <!-- Application Date -->
+            <div class="form-group">
+              <label for="form-date">Application Date <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-calendar"></i>
+                <input type="date" id="form-date" required>
+              </div>
+              <span class="error-message" id="error-date">Application date is required.</span>
+            </div>
+
+            <!-- Status -->
+            <div class="form-group">
+              <label for="form-status">Application Status</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-circle-question"></i>
+                <select id="form-status">
+                  <option value="Applied">Applied</option>
+                  <option value="Interview Scheduled">Interview Scheduled</option>
+                  <option value="Offer Received">Offer Received</option>
+                  <option value="Rejected">Rejected</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Interview Date/Time (visible conditionally or styled cleanly) -->
+            <div class="form-group col-span-2" id="interview-time-group" style="display: none;">
+              <label for="form-interview-date">Interview Date & Time</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-clock"></i>
+                <input type="datetime-local" id="form-interview-date">
+              </div>
+            </div>
+
+            <!-- Job Link -->
+            <div class="form-group col-span-2">
+              <label for="form-link">Job Posting Link</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-link"></i>
+                <input type="url" id="form-link" placeholder="e.g. https://careers.google.com/jobs/...">
+              </div>
+              <span class="error-message" id="error-link">Please enter a valid URL (starting with http:// or https://).</span>
+            </div>
+
+            <!-- Contact Name -->
+            <div class="form-group">
+              <label for="form-contact-name">Contact Person</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="form-contact-name" placeholder="e.g. Jane Doe (Recruiter)">
+              </div>
+            </div>
+
+            <!-- Contact Email -->
+            <div class="form-group">
+              <label for="form-contact-email">Contact Email</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" id="form-contact-email" placeholder="e.g. recruiter@company.com">
+              </div>
+              <span class="error-message" id="error-contact-email">Please enter a valid email address.</span>
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group col-span-2">
+              <label for="form-notes">Notes & Follow-ups</label>
+              <textarea id="form-notes" rows="4" placeholder="Enter key details, questions prepared, or next actions..."></textarea>
+            </div>
+
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-job">Save Application</button>
+        </div>
+      </form>
+      
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>&copy; 2026 CareerPath. Empowering your job search. Built with HTML, CSS, & JS.</p>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
